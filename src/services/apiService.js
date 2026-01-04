@@ -124,7 +124,7 @@ export const apiService = {
         const data = await response.json();
         
         if (data.success === false || data.error) {
-            throw new Error(data.error);
+            return []
         }
         
         return data && typeof data === 'object' ? data : {};

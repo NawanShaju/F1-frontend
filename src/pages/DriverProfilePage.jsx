@@ -7,7 +7,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import YearSelector from '../components/YearSelector';
 import { formatDate } from '../utils/formatters';
-import { Stat } from '../components/Stat'
+import { StatRow } from '../components/Stat';
 
 export default function DriverProfilePage() {
   const { driverNumber } = useParams();
@@ -19,7 +19,7 @@ export default function DriverProfilePage() {
   const [selectedYear, setSelectedYear] = useState(parseInt(yearFromUrl) || 2025);
   const [wins, setWins] = useState([]);
   const [podiums, setPodiums] = useState([]);
-  const [stats, setStats] = useState([]);
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(false);
   const [statsLoading, setStatsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -41,17 +41,16 @@ export default function DriverProfilePage() {
     setError(null);
     
     try {
-        const data = await apiService.fetchDriverInfoByYear(driverNumber, year);
-        setDriverInfo(data);
+      const data = await apiService.fetchDriverInfoByYear(driverNumber, year);
+      setDriverInfo(data);
 
-        const statsData = await apiService.fetchDriverStats(driverNumber, year);
-        setStats(statsData)
+      const statsData = await apiService.fetchDriverStats(driverNumber, year);
+      setStats(statsData);
     } catch (err) {
-        setError(err.message || 'Failed to fetch driver information');
+      setError(err.message || 'Failed to fetch driver information');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    
   };
 
   const fetchDriverStats = async (year) => {
@@ -158,12 +157,12 @@ export default function DriverProfilePage() {
           </div>
 
           {/* Decorative number in background */}
-            <div 
-            className="absolute bottom-15 right-5 text-[600px] md:text-600px] font-black opacity-50 leading-none pointer-events-auto"
+          <div 
+            className="absolute bottom-15 right-5 text-[600px] md:text-[600px] font-black opacity-50 leading-none pointer-events-none"
             style={{ color: `#${driverInfo.team_colour}` }}
-            >
+          >
             {driverInfo.driver_number}
-            </div>
+          </div>
 
           {/* Right Side - Driver Image (Bottom Right Corner) */}
           <div className="absolute bottom-0 right-0 z-10">
@@ -189,7 +188,6 @@ export default function DriverProfilePage() {
                 </span>
               </div>
             )}
-            
           </div>
         </div>
       </div>
@@ -200,62 +198,81 @@ export default function DriverProfilePage() {
           <LoadingSpinner />
         ) : (
           <div className="space-y-6">
-            {/* Season Overview */}
-            <div className="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700">
-            <h3 className="text-xl font-bold mb-6 text-white">
-                Season Overview
-            </h3>
+            {/* Statistics Section */}
+            {stats && Object.keys(stats).length > 0 ? (
+              <div className="bg-gray-800 rounded-xl p-8 shadow-xl">
+                <h3 className="text-3xl font-black uppercase tracking-wider mb-8 text-white">
+                  Statistics
+                </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* OVERALL / CAREER STATS */}
-                <div>
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400 mb-4">
-                    Career Stats
-                </h4>
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+                  {/* LEFT COLUMN - SEASON STATS */}
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-wide text-white mb-6 pb-3 border-b-2 border-gray-700">
+                      Latest Season
+                    </h4>
+                    
+                    <div className="space-y-1">
+                      <StatRow label="Season Position" value={stats["Season Position"]} />
+                      <StatRow label="Season Points" value={stats["Season Points"]} />
+                      <StatRow label="Grand Prix Races" value={stats["Grand Prix Races"]} />
+                      <StatRow label="Grand Prix Points" value={stats["Grand Prix Points"]} />
+                      <StatRow label="Grand Prix Wins" value={stats["Grand Prix Wins"]} />
+                      <StatRow label="Grand Prix Podiums" value={stats["Grand Prix Podiums"]} />
+                      <StatRow label="Grand Prix Poles" value={stats["Grand Prix Poles"]} />
+                      <StatRow label="Grand Prix Top 10s" value={stats["Grand Prix Top 10s"]} />
+                      <StatRow label="DHL Fastest Laps" value={stats["DHL Fastest Laps"]} />
+                      <StatRow label="DNFs" value={stats["DNFs"]} />
+                    </div>
 
-                <div className="space-y-3">
-                    {console.log(stats)}
-                    <Stat label="World Championships" value={stats["World Championships"]} />
-                    <Stat label="Career Points" value={stats["Career Points"]} />
-                    <Stat label="Podiums" value={stats["Podiums"]} />
-                    <Stat label="Pole Positions" value={stats["Pole Positions"]} />
-                    <Stat label="Wins" value={stats["Highest Race Finish"]} />
-                    <Stat label="DNFs" value={stats["DNFs"]} />
-                    <Stat label="Fastest Laps" value={stats["DHL Fastest Laps"]} />
-                    <Stat label="Grands Prix Entered" value={stats["Grand Prix Entered"]} />
+                    {/* Sprint Section */}
+                    <div className="mt-8 pt-6 border-t border-gray-700">
+                      <StatRow label="Sprint Races" value={stats["Sprint Races"]} />
+                      <StatRow label="Sprint Points" value={stats["Sprint Points"]} />
+                      <StatRow label="Sprint Wins" value={stats["Sprint Wins"]} />
+                      <StatRow label="Sprint Podiums" value={stats["Sprint Podiums"]} />
+                      <StatRow label="Sprint Poles" value={stats["Sprint Poles"]} />
+                      <StatRow label="Sprint Top 10s" value={stats["Sprint Top 10s"]} />
+                    </div>
+                  </div>
+
+                  {/* RIGHT COLUMN - CAREER STATS */}
+                  <div className="bg-gray-900/50 rounded-lg p-6 h-fit">
+                    <h4 className="text-xl font-black uppercase tracking-wide text-white mb-6 pb-3 border-b-2 border-gray-700">
+                      Career Stats
+                    </h4>
+                    
+                    <div className="space-y-1">
+                      <StatRow label="Grand Prix Entered" value={stats["Grand Prix Entered"]} />
+                      <StatRow label="Career Points" value={stats["Career Points"]} />
+                      <StatRow label="Highest Race Finish" value={stats["Highest Race Finish"]} />
+                      <StatRow label="Podiums" value={stats["Podiums"]} />
+                      <StatRow label="Highest Grid Position" value={stats["Highest Grid Position"]} />
+                      <StatRow label="Pole Positions" value={stats["Pole Positions"]} />
+                      <StatRow label="World Championships" value={stats["World Championships"]} />
+                      <StatRow label="DNFs" value={stats["DNFs"]} />
+                    </div>
+                  </div>
                 </div>
+              </div>
+            ) : (
+              <div className="bg-gray-800 rounded-xl p-6 shadow-xl border-2 border-dashed border-gray-700">
+                <div className="flex items-center justify-center h-50">
+                  <div className="text-center text-gray-600">
+                    <div className="text-6xl mb-4">📊</div>
+                    <p className="text-lg">No Statistics Available</p>
+                  </div>
                 </div>
+              </div>
+            )}
 
-                {/* CURRENT SEASON / SESSION STATS */}
-                <div>
-                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-400 mb-4">
-                    Current Season
-                </h4>
-
-                <div className="space-y-3">
-                    <Stat label="Season Position" value={stats["Season Position"]} />
-                    <Stat label="Season Points" value={stats["Season Points"]} />
-                    <Stat label="Grand Prix Races" value={stats["Grand Prix Races"]} />
-                    <Stat label="Top 10 Finishes" value={stats["Grand Prix Top 10s"]} />
-                    <Stat label="Sprint Races" value={stats["Sprint Races"]} />
-                    <Stat label="Sprint Wins" value={stats["Sprint Wins"]} />
-                    <Stat label="Sprint Points" value={stats["Sprint Points"]} />
-                    <Stat label="Sprint Podiums" value={stats["Sprint Podiums"]} />
-                </div>
-                </div>
-
-            </div>
-            </div>
-
-
-            {/* Year Selector for Stats */}
+            {/* Year Selector */}
             <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-4">Career Statistics</h2>
-                <YearSelector selectedYear={selectedYear} onYearChange={setSelectedYear} />
+              <h2 className="text-3xl font-bold mb-4">Career Statistics</h2>
+              <YearSelector selectedYear={selectedYear} onYearChange={setSelectedYear} />
             </div>
 
-            {/* Race Wins and Podiums - Bottom Section */}
+            {/* Race Wins and Podiums Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Race Wins Section */}
               <div className="bg-gray-800 rounded-xl p-6 shadow-xl">
@@ -276,7 +293,7 @@ export default function DriverProfilePage() {
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="font-bold text-lg mb-1">{win.circuit_short_name}</h4>
+                            <h4 className="font-bold text-lg mb-1">{win.circuit_short_name} - {win.session_name}</h4>
                             <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                               <MapPin size={14} />
                               {win.location}
@@ -324,7 +341,7 @@ export default function DriverProfilePage() {
                               <span className="bg-orange-400 text-gray-900 font-bold px-2 py-1 rounded text-sm">
                                 P{podium.position}
                               </span>
-                              <h4 className="font-bold text-lg">{podium.circuit_short_name}</h4>
+                              <h4 className="font-bold text-lg">{podium.circuit_short_name} - {podium.session_name}</h4>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-400 mt-1">
                               <MapPin size={14} />

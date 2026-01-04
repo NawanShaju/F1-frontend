@@ -1,14 +1,8 @@
-export const Stat = ({ label, value }) => {
-  if (!value) return null;
-
+export function StatRow({ label, value }) {
   return (
-    <div className="flex items-center justify-between border-b border-gray-700 pb-1">
-      <span className="text-white text-3xl">
-        {label}
-      </span>
-      <span className="text-white font-semibold text-3xl">
-        {value}
-      </span>
+    <div className="flex justify-between items-center py-3 border-b border-gray-700/40 hover:bg-gray-700/20 transition-colors px-3 -mx-3">
+      <span className="text-gray-400 text-sm font-medium pr-4">{label}</span>
+      <span className="text-white text-2xl font-bold tabular-nums shrink-0">{value || '0'}</span>
     </div>
   );
-};
+}
