@@ -130,4 +130,14 @@ export const apiService = {
         return data && typeof data === 'object' ? data : {};
     },
 
+    async fetchMeetingInfo(meetingKey) {
+        const response = await fetch(`${API_BASE_URL}/meetings/get-meeting-info?meeting_key=${meetingKey}`);
+        const data = await response.json();
+        
+        if (data.success === false || data.error) {
+        throw new Error(data.error);
+        }
+        
+        return data;
+    }
 };
